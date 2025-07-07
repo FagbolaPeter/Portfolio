@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { IoCopyOutline } from "react-icons/io5";
 
@@ -6,9 +7,16 @@ import Lottie from "react-lottie";
 
 import { cn } from "@/lib/utils";
 
+import dynamic from "next/dynamic";
 
+// Import other components that might also cause SSR issues dynamically if needed
 import { BackgroundGradientAnimation } from "./GradientBg";
-import GridGlobe from "./GridGlobe";
+
+const GridGlobe = dynamic(
+  () => import("./GridGlobe").then((mod) => mod.default),
+  { ssr: false }
+);
+
 import animationData from "@/data/confetti.json";
 import MagicButton from "../MagicButton";
 
@@ -33,18 +41,17 @@ export const BentoGrid = ({
 };
 
 export const BentoGridItem = ({
-  className,
   id,
+  className,
   title,
   description,
-  //   remove unecessary things here
   img,
   imgClassName,
   titleClassName,
   spareImg,
 }: {
-  className?: string;
   id: number;
+  className?: string;
   title?: string | React.ReactNode;
   description?: string | React.ReactNode;
   img?: string;
@@ -52,30 +59,16 @@ export const BentoGridItem = ({
   titleClassName?: string;
   spareImg?: string;
 }) => {
-  const leftLists = ["ReactJS", "Express", "Typescript"];
-  const rightLists = ["VueJS", "NuxtJS", "GraphQL"];
-
-  const [copied, setCopied] = useState(false);
-
-  const defaultOptions = {
-    loop: copied,
-    autoplay: copied,
-    animationData: animationData,
-    rendererSettings: {
-      preserveAspectRatio: "xMidYMid slice",
-    },
-  };
+  const [copy, setCopy] = useState(false);
 
   const handleCopy = () => {
-    const text = "hsu@jsmastery.pro";
-    navigator.clipboard.writeText(text);
-    setCopied(true);
+    navigator.clipboard.writeText("contact@jsmastery.pro");
+    setCopy(true);
   };
 
   return (
     <div
       className={cn(
-        // remove p-4 rounded-3xl dark:bg-black dark:border-white/[0.2] bg-white  border border-transparent, add border border-white/[0.1] overflow-hidden relative
         "row-span-1 relative overflow-hidden rounded-3xl border border-white/[0.1] group/bento hover:shadow-xl transition duration-200 shadow-input dark:shadow-none justify-between flex flex-col space-y-4",
         className
       )}
@@ -87,7 +80,7 @@ export const BentoGridItem = ({
           "linear-gradient(90deg, rgba(4,7,29,1) 0%, rgba(12,14,35,1) 100%)",
       }}
     >
-      {/* add img divs */}
+      {/* add img tage for the bento background */}
       <div className={`${id === 6 && "flex justify-center"} h-full`}>
         <div className="w-full h-full absolute">
           {img && (
@@ -99,22 +92,24 @@ export const BentoGridItem = ({
           )}
         </div>
         <div
-          className={`absolute right-0 -bottom-5 ${id === 5 && "w-full opacity-80"
-            } `}
+          className={`absolute right-0 bottom-0 ${id === 5 && "w-full opacity-80"}`}
         >
           {spareImg && (
             <img
               src={spareImg}
               alt={spareImg}
-              //   width={220}
+              //   animate this filter to show at the top of the bento card
               className="object-cover object-center w-full h-full"
             />
           )}
         </div>
         {id === 6 && (
-          // add background animation , remove the p tag
+          // add order-5 for the globe to go last
           <BackgroundGradientAnimation>
-            <div className="absolute z-50 inset-0 flex items-center justify-center text-white font-bold px-4 pointer-events-none text-3xl text-center md:text-4xl lg:text-7xl"></div>
+            <div className="absolute z-50 inset-0 flex items-center justify-center text-white font-bold px-4 pointer-events-none text-3xl text-center md:text-4xl lg:text-7xl">
+              {/* remove this one */}
+              {/* <canvas id="gradient-canvas" className="w-full h-full" /> */}
+            </div>
           </BackgroundGradientAnimation>
         )}
 
@@ -124,74 +119,60 @@ export const BentoGridItem = ({
             "group-hover/bento:translate-x-2 transition duration-200 relative md:h-full min-h-40 flex flex-col px-5 p-5 lg:p-10"
           )}
         >
-          {/* change the order of the title and des, font-extralight, remove text-xs text-neutral-600 dark:text-neutral-300 , change the text-color */}
-          <div className="font-sans font-extralight md:max-w-32 md:text-xs lg:text-base text-sm text-[#C1C2D3] z-10">
-            {description}
-          </div>
-          {/* add text-3xl max-w-96 , remove text-neutral-600 dark:text-neutral-300*/}
-          {/* remove mb-2 mt-2 */}
-          <div
-            className={`font-sans text-lg lg:text-3xl max-w-96 font-bold z-10`}
-          >
-            {title}
-          </div>
-
-          {/* for the github 3d globe */}
+          {/* change the color of the globe */} 
           {id === 2 && <GridGlobe />}
 
-          {/* Tech stack list div */}
+          {/* Tech stack */} 
           {id === 3 && (
             <div className="flex gap-1 lg:gap-5 w-fit absolute -right-3 lg:-right-2">
-              {/* tech stack lists */}
-              <div className="flex flex-col gap-3 md:gap-3 lg:gap-8">
-                {leftLists.map((item, i) => (
-                  <span
-                    key={i}
-                    className="lg:py-4 lg:px-3 py-2 px-3 text-xs lg:text-base opacity-50 
-                    lg:opacity-100 rounded-lg text-center bg-[#10132E]"
-                  >
-                    {item}
-                  </span>
-                ))}
-                <span className="lg:py-4 lg:px-3 py-4 px-3  rounded-lg text-center bg-[#10132E]"></span>
+              <div className="flex flex-col gap-3 md:gap-3 text-sm lg:text-base py-4 lg:py-8 font-bold opacity-50 lg:opacity-100 uppercase">
+                Next.js
+                Tailwind CSS
+                JavaScript
               </div>
-              <div className="flex flex-col gap-3 md:gap-3 lg:gap-8">
-                <span className="lg:py-4 lg:px-3 py-4 px-3  rounded-lg text-center bg-[#10132E]"></span>
-                {rightLists.map((item, i) => (
-                  <span
-                    key={i}
-                    className="lg:py-4 lg:px-3 py-2 px-3 text-xs lg:text-base opacity-50 
-                    lg:opacity-100 rounded-lg text-center bg-[#10132E]"
-                  >
-                    {item}
-                  </span>
-                ))}
+              <div className="flex flex-col gap-3 md:gap-3 text-sm lg:text-base py-4 lg:py-8 font-bold opacity-50 lg:opacity-100 uppercase">
+                TypeScript
+                Framer Motion
+                Three.js
               </div>
             </div>
           )}
+
           {id === 6 && (
             <div className="mt-5 relative">
-              {/* button border magic from tailwind css buttons  */}
-              {/* add rounded-md h-8 md:h-8, remove rounded-full */}
-              {/* remove focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 */}
-              {/* add handleCopy() for the copy the text */}
+              {/* button for copy the email */} 
               <div
-                className={`absolute -bottom-5 right-0 ${copied ? "block" : "block"
-                  }`}
+                className={`absolute -bottom-5 right-0 ${
+                  copy ? "block" : "block"
+                }`}
               >
-                {/* <img src="/confetti.gif" alt="confetti" /> */}
-                <Lottie options={defaultOptions} height={200} width={400} />
+                <Lottie options={{
+                  loop: copy,
+                  autoplay: copy,
+                  animationData,
+                  rendererSettings: {
+                    preserveAspectRatio: "xMidYMid slice",
+                  },
+                }} height={200} width={400} />
               </div>
 
               <MagicButton
-                title={copied ? "Email is Copied!" : "Copy my email address"}
+                title={copy ? "Email is Copied!" : "Copy my email address"}
                 icon={<IoCopyOutline />}
                 position="left"
                 handleClick={handleCopy}
-                otherClasses="!bg-[#161A31]"
+                otherClasses="!bg-[#161A31] !font-bold !text-sm lg:!text-base"
               />
             </div>
           )}
+
+          <div className="font-sans font-extralight text-[#c1c2d3] text-sm md:text-xs lg:text-base z-10">
+            {description}
+          </div>
+
+          <div className="font-sans text-lg lg:text-3xl max-w-96 font-bold z-10">
+            {title}
+          </div>
         </div>
       </div>
     </div>
